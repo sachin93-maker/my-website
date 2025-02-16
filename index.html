@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Java Code Runner</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Welcome to Java Code Runner</h1>
+        <p>Your one-stop solution for writing, executing, and generating PDFs for Java code.</p>
+    </header>
+    
+    <section class="features">
+        <h2>Features</h2>
+        <ul>
+            <li>Write and execute Java code instantly</li>
+            <li>View real-time output</li>
+            <li>Download Java code and output as a PDF</li>
+            <li>User-friendly and responsive design</li>
+        </ul>
+    </section>
+
+    <div class="container">
+        <h2>Try it Now</h2>
+        <textarea id="code" placeholder="Enter your Java code here..."></textarea>
+        <button class="run-btn" onclick="runCode()">▶ Run Code</button>
+        <pre id="output"></pre>
+        <button class="pdf-btn" onclick="downloadPDF()">📄 Download PDF</button>
+    </div>
+
+    <section class="services">
+        <h2>Our Services</h2>
+        <p>We provide an easy-to-use Java execution platform with PDF generation capabilities. Our service is perfect for students, developers, and professionals looking to test and document their Java code efficiently.</p>
+    </section>
+
+    <footer>
+        <p>&copy; 2025 Java Code Runner. All rights reserved.</p>
+    </footer>
+    
+    <script>
+        async function runCode() {
+            const code = document.getElementById("code").value;
+            const response = await fetch("/run-java", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ code })
+            });
+            const result = await response.json();
+            document.getElementById("output").innerText = result.output || result.error;
+        }
+        
+        async function downloadPDF() {
+            const code = document.getElementById("code").value;
+            const output = document.getElementById("output").innerText;
+            if (!code || !output) {
+                alert("Run the code first before generating a PDF.");
+                return;
+            }
+            const response = await fetch("/generate-pdf", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ code, output })
+            });
+            if (response.ok) {
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = "JavaCode.pdf";
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            } else {
+                alert("Error generating PDF");
+            }
+        }
+    </script>
+</body>
+</html>
+
